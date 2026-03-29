@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ВАЖНО: Специальные настройки для телефонов (запрет зума) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>❤️ Тапалка с бустами ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -10,10 +11,17 @@
         
         body {
             font-family: 'Press Start 2P', system-ui;
+            /* Запрет выделения текста пальцем на телефоне */
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
         }
         
         .coin {
             transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Отключаем браузерные жесты на самой монете */
+            touch-action: none; 
         }
         
         .coin:active {
@@ -22,13 +30,12 @@
         
         .particle {
             position: absolute;
-            font-size: 28px;
+            font-size: 24px; /* Чуть уменьшили для мобилок */
             pointer-events: none;
             z-index: 50;
             text-shadow: 0 0 10px currentColor;
         }
         
-        @keyframes fallCoin { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(420px) rotate(720deg); opacity: 0; } }
         @keyframes floatHeart { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translateY(-380px) scale(0.6) rotate(360deg); opacity: 0; } }
         @keyframes floatStar { 0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; } 100% { transform: translateY(-380px) scale(0.6) rotate(720deg); opacity: 0; } }
         
@@ -41,72 +48,76 @@
             to { box-shadow: 0 0 0 20px rgba(236, 72, 153, 0); }
         }
         
-        #secret-screen {
+        #screen-secret {
             transition: all 0.6s ease;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-amber-400 to-yellow-500 text-white min-h-screen overflow-hidden">
+<body class="bg-gradient-to-br from-amber-400 to-yellow-500 text-white min-h-screen overflow-x-hidden">
 
-    <!-- HEADER -->
+    <!-- HEADER (Сделали компактнее для телефонов) -->
     <div class="sticky top-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/20">
-        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="text-5xl">💰</div>
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+            
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="text-3xl sm:text-5xl">💰</div>
                 <div>
-                    <div id="coin-count" class="text-4xl font-bold tabular-nums">0</div>
-                    <div class="text-xs tracking-widest opacity-75 -mt-1">МОНЕТЫ</div>
+                    <div id="coin-count" class="text-2xl sm:text-4xl font-bold tabular-nums">0</div>
+                    <div class="text-[10px] sm:text-xs tracking-widest opacity-75 -mt-1">МОНЕТЫ</div>
                 </div>
             </div>
 
-            <div class="flex-1 max-w-xs mx-8">
-                <div class="flex justify-between text-xs mb-1 font-medium">
-                    <span>ПРОГРЕСС</span>
+            <div class="flex-1 max-w-[140px] sm:max-w-xs mx-2 sm:mx-8">
+                <div class="flex justify-between text-[10px] sm:text-xs mb-1 font-medium">
+                    <span class="hidden sm:inline">ПРОГРЕСС</span>
                     <span id="progress-text">0 / 1000</span>
                 </div>
-                <div class="h-5 bg-white/20 rounded-3xl overflow-hidden border border-white/30">
+                <div class="h-3 sm:h-5 bg-white/20 rounded-3xl overflow-hidden border border-white/30">
                     <div id="progress-bar" class="h-full w-0 bg-gradient-to-r from-yellow-300 to-amber-500 transition-all duration-500"></div>
                 </div>
             </div>
 
             <button onclick="resetScore()" 
-                    class="flex items-center gap-2 bg-red-500 hover:bg-red-600 px-5 py-3 rounded-2xl font-bold text-sm shadow-inner active:scale-95 transition">
-                🗑️ СБРОСИТЬ
+                    class="flex items-center justify-center bg-red-500 hover:bg-red-600 w-10 h-10 sm:w-auto sm:h-auto sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm shadow-inner active:scale-95 transition">
+                🗑️<span class="hidden sm:inline ml-2">СБРОСИТЬ</span>
             </button>
         </div>
 
         <!-- Табы -->
-        <div class="max-w-5xl mx-auto px-6 flex border-t border-white/20">
-            <button onclick="switchTab(0)" id="tab-0" class="flex-1 py-5 text-center font-bold border-b-4 border-transparent data-[active=true]:border-white">🏠 ГЛАВНАЯ</button>
-            <button onclick="switchTab(1)" id="tab-1" class="flex-1 py-5 text-center font-bold border-b-4 border-transparent data-[active=true]:border-white">🛒 МАГАЗИН</button>
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 flex border-t border-white/20">
+            <button onclick="switchTab(0)" id="tab-0" class="flex-1 py-3 sm:py-5 text-xs sm:text-base text-center font-bold border-b-4 border-transparent data-[active=true]:border-white">🏠 ГЛАВНАЯ</button>
+            <button onclick="switchTab(1)" id="tab-1" class="flex-1 py-3 sm:py-5 text-xs sm:text-base text-center font-bold border-b-4 border-transparent data-[active=true]:border-white">🛒 МАГАЗИН</button>
         </div>
     </div>
 
     <!-- ГЛАВНЫЙ ЭКРАН -->
-    <div id="screen-main" class="max-w-5xl mx-auto px-6 py-8">
+    <div id="screen-main" class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div class="flex flex-col items-center">
-            <div onclick="tapCoin(event)" class="relative cursor-pointer select-none mx-auto">
+            
+            <!-- onpointerdown моментально срабатывает на касание пальцем -->
+            <div onpointerdown="tapCoin(event)" class="relative cursor-pointer select-none mx-auto touch-none">
+                <!-- Уменьшили монету на телефоне (w-64 h-64), на ПК оставили большой (sm:w-80 sm:h-80) -->
                 <img id="main-coin-img" 
                      src="makdi.jpg"
-                     class="coin w-80 h-80 rounded-[50%] border-8 border-yellow-300 shadow-2xl object-cover"
+                     class="coin w-64 h-64 sm:w-80 sm:h-80 rounded-[50%] border-[6px] sm:border-8 border-yellow-300 shadow-2xl object-cover"
                      alt="Твоя монета">
             </div>
 
-            <div class="mt-6 flex gap-4 flex-wrap justify-center" id="active-boosts"></div>
+            <div class="mt-4 sm:mt-6 flex gap-2 sm:gap-4 flex-wrap justify-center min-h-[40px]" id="active-boosts"></div>
 
-            <p class="mt-8 text-xl font-bold tracking-widest">ТАПАЙ ПО МОНЕТЕ! (+15 за тап)</p>
+            <p class="mt-6 sm:mt-8 text-sm sm:text-xl font-bold tracking-widest text-center">ТАПАЙ ПО МОНЕТЕ! <br class="sm:hidden"><span class="opacity-80 text-xs sm:text-lg sm:ml-2">(+15 за тап)</span></p>
 
-            <!-- ВЫБОР СЕКРЕТНЫХ УРОВНЕЙ (всегда видны после 1000) -->
-            <div id="secret-unlock-area" class="hidden mt-10 w-full max-w-lg">
-                <p class="text-center text-sm mb-4 opacity-75">СЕКРЕТНЫЕ УРОВНИ ОТКРЫТЫ!</p>
-                <div class="grid grid-cols-2 gap-4">
+            <!-- ВЫБОР СЕКРЕТНЫХ УРОВНЕЙ -->
+            <div id="secret-unlock-area" class="hidden mt-8 w-full max-w-lg">
+                <p class="text-center text-[10px] sm:text-sm mb-3 sm:mb-4 opacity-75">СЕКРЕТНЫЕ УРОВНИ ОТКРЫТЫ!</p>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
                     <button onclick="enterSecretLevel(1)" 
-                            class="py-6 bg-gradient-to-r from-pink-500 to-rose-500 rounded-3xl text-xl font-bold shadow-2xl flex items-center justify-center gap-3 hover:scale-105 transition">
-                         МАРИНА
+                            class="py-4 sm:py-6 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl sm:rounded-3xl text-xs sm:text-xl font-bold shadow-2xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 active:scale-95 transition">
+                        <span class="text-xl sm:text-2xl"></span> МАРИНА
                     </button>
                     <button onclick="enterSecretLevel(2)" 
-                            class="py-6 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-3xl text-xl font-bold shadow-2xl flex items-center justify-center gap-3 hover:scale-105 transition">
-                         ХЛЕБИК
+                            class="py-4 sm:py-6 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-2xl sm:rounded-3xl text-xs sm:text-xl font-bold shadow-2xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 active:scale-95 transition">
+                        <span class="text-xl sm:text-2xl">⭐</span> ХЛЕБИК
                     </button>
                 </div>
             </div>
@@ -114,66 +125,66 @@
     </div>
 
     <!-- МАГАЗИН -->
-    <div id="screen-shop" class="max-w-5xl mx-auto px-6 py-8 hidden">
-        <h1 class="text-3xl font-bold text-center mb-10">🛒 МАГАЗИН БУСТОВ И СКИНОВ</h1>
+    <div id="screen-shop" class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 hidden pb-24">
+        <h1 class="text-xl sm:text-3xl font-bold text-center mb-6 sm:mb-10">🛒 МАГАЗИН</h1>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <!-- Бусты -->
-            <div class="space-y-6">
-                <h2 class="text-2xl font-bold mb-4">⚡ БУСТЫ</h2>
+            <div class="space-y-4 sm:space-y-6">
+                <h2 class="text-lg sm:text-2xl font-bold mb-2 sm:mb-4">⚡ БУСТЫ</h2>
                 
-                <div onclick="buyBoost(0)" id="boost-0" class="bg-white/10 hover:bg-white/20 p-6 rounded-3xl cursor-pointer transition-all">
-                    <div class="flex justify-between">
+                <div onclick="buyBoost(0)" id="boost-0" class="bg-white/10 active:bg-white/20 sm:hover:bg-white/20 p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
                         <div>
-                            <span class="text-3xl">×2</span>
-                            <p class="font-bold">Двойной тап</p>
-                            <p class="text-sm opacity-75">30 секунд</p>
+                            <span class="text-2xl sm:text-3xl">×2</span>
+                            <p class="font-bold text-sm sm:text-base">Двойной тап</p>
+                            <p class="text-xs sm:text-sm opacity-75">30 секунд</p>
                         </div>
                         <div class="text-right">
-                            <div id="price-0" class="text-2xl font-bold">150</div>
-                            <div class="text-xs">монет</div>
+                            <div id="price-0" class="text-xl sm:text-2xl font-bold">150</div>
+                            <div class="text-[10px] sm:text-xs">монет</div>
                         </div>
                     </div>
                 </div>
 
-                <div onclick="buyBoost(1)" id="boost-1" class="bg-white/10 hover:bg-white/20 p-6 rounded-3xl cursor-pointer transition-all">
-                    <div class="flex justify-between">
+                <div onclick="buyBoost(1)" id="boost-1" class="bg-white/10 active:bg-white/20 sm:hover:bg-white/20 p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
                         <div>
-                            <span class="text-3xl">×5</span>
-                            <p class="font-bold">Пятикратный тап</p>
-                            <p class="text-sm opacity-75">20 секунд</p>
+                            <span class="text-2xl sm:text-3xl">×5</span>
+                            <p class="font-bold text-sm sm:text-base">Пяти тап</p>
+                            <p class="text-xs sm:text-sm opacity-75">20 секунд</p>
                         </div>
                         <div class="text-right">
-                            <div id="price-1" class="text-2xl font-bold">450</div>
-                            <div class="text-xs">монет</div>
+                            <div id="price-1" class="text-xl sm:text-2xl font-bold">450</div>
+                            <div class="text-[10px] sm:text-xs">монет</div>
                         </div>
                     </div>
                 </div>
 
-                <div onclick="buyBoost(2)" id="boost-2" class="bg-white/10 hover:bg-white/20 p-6 rounded-3xl cursor-pointer transition-all">
-                    <div class="flex justify-between">
+                <div onclick="buyBoost(2)" id="boost-2" class="bg-white/10 active:bg-white/20 sm:hover:bg-white/20 p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
                         <div>
-                            <span class="text-3xl">🤖</span>
-                            <p class="font-bold">Авто-тап</p>
-                            <p class="text-sm opacity-75">+15 в сек (40 сек)</p>
+                            <span class="text-2xl sm:text-3xl">🤖</span>
+                            <p class="font-bold text-sm sm:text-base">Авто-тап</p>
+                            <p class="text-xs sm:text-sm opacity-75">+15 в сек</p>
                         </div>
                         <div class="text-right">
-                            <div id="price-2" class="text-2xl font-bold">800</div>
-                            <div class="text-xs">монет</div>
+                            <div id="price-2" class="text-xl sm:text-2xl font-bold">800</div>
+                            <div class="text-[10px] sm:text-xs">монет</div>
                         </div>
                     </div>
                 </div>
 
-                <div onclick="buyBoost(3)" id="boost-3" class="bg-white/10 hover:bg-white/20 p-6 rounded-3xl cursor-pointer transition-all">
-                    <div class="flex justify-between">
+                <div onclick="buyBoost(3)" id="boost-3" class="bg-white/10 active:bg-white/20 sm:hover:bg-white/20 p-4 sm:p-6 rounded-2xl sm:rounded-3xl cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
                         <div>
-                            <span class="text-3xl">🌟</span>
-                            <p class="font-bold">МЕГА БУСТ ×10</p>
-                            <p class="text-sm opacity-75">12 секунд</p>
+                            <span class="text-2xl sm:text-3xl">🌟</span>
+                            <p class="font-bold text-sm sm:text-base text-yellow-300">МЕГА ×10</p>
+                            <p class="text-xs sm:text-sm opacity-75">12 секунд</p>
                         </div>
                         <div class="text-right">
-                            <div id="price-3" class="text-2xl font-bold">1500</div>
-                            <div class="text-xs">монет</div>
+                            <div id="price-3" class="text-xl sm:text-2xl font-bold text-yellow-300">1500</div>
+                            <div class="text-[10px] sm:text-xs text-yellow-300">монет</div>
                         </div>
                     </div>
                 </div>
@@ -181,31 +192,32 @@
 
             <!-- Скины -->
             <div>
-                <h2 class="text-2xl font-bold mb-4">🎨 СКИНЫ</h2>
-                <div class="grid grid-cols-3 gap-4">
-                    <div onclick="selectSkin('original')" class="cursor-pointer hover:scale-105 transition-transform">
-                        <img src="makdi.jpg" class="rounded-3xl border-4 border-yellow-300 w-full aspect-square object-cover">
-                        <p class="text-center text-xs mt-2">Макди</p>
+                <h2 class="text-lg sm:text-2xl font-bold mb-4 mt-6 md:mt-0">🎨 СКИНЫ</h2>
+                <!-- Сделали по 2 в ряд на телефоне, чтобы было крупнее -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div onclick="selectSkin('original')" class="cursor-pointer active:scale-95 transition-transform">
+                        <img src="makdi.jpg" class="rounded-2xl sm:rounded-3xl border-4 border-yellow-300 w-full aspect-square object-cover">
+                        <p class="text-center text-[10px] sm:text-xs mt-2">Макди</p>
                     </div>
-                    <div onclick="selectSkin('marin')" class="cursor-pointer hover:scale-105 transition-transform">
-                        <img src="marin.jpg" class="rounded-3xl border-4 border-yellow-300 w-full aspect-square object-cover">
-                        <p class="text-center text-xs mt-2">Марина</p>
+                    <div onclick="selectSkin('marin')" class="cursor-pointer active:scale-95 transition-transform">
+                        <img src="marin.jpg" class="rounded-2xl sm:rounded-3xl border-4 border-yellow-300 w-full aspect-square object-cover">
+                        <p class="text-center text-[10px] sm:text-xs mt-2">Марина</p>
                     </div>
-                    <div onclick="selectSkin('hleb')" class="cursor-pointer hover:scale-105 transition-transform">
-                        <img src="hleb.jpg" class="rounded-3xl border-4 border-pink-300 w-full aspect-square object-cover">
-                        <p class="text-center text-xs mt-2">Хлеб</p>
+                    <div onclick="selectSkin('hleb')" class="cursor-pointer active:scale-95 transition-transform">
+                        <img src="hleb.jpg" class="rounded-2xl sm:rounded-3xl border-4 border-pink-300 w-full aspect-square object-cover">
+                        <p class="text-center text-[10px] sm:text-xs mt-2">Хлеб</p>
                     </div>
-                    <div onclick="selectSkin('aurum')" class="cursor-pointer hover:scale-105 transition-transform">
-                        <img src="aurum.jpg" class="rounded-3xl border-4 border-blue-300 w-full aspect-square object-cover">
-                        <p class="text-center text-xs mt-2">Аурум</p>
+                    <div onclick="selectSkin('aurum')" class="cursor-pointer active:scale-95 transition-transform">
+                        <img src="aurum.jpg" class="rounded-2xl sm:rounded-3xl border-4 border-blue-300 w-full aspect-square object-cover">
+                        <p class="text-center text-[10px] sm:text-xs mt-2">Аурум</p>
                     </div>
-                    <div onclick="selectSkin('suxoy')" class="cursor-pointer hover:scale-105 transition-transform">
-                        <img src="suxoy.jpg" class="rounded-3xl border-4 border-green-300 w-full aspect-square object-cover">
-                        <p class="text-center text-xs mt-2">Сухой</p>
+                    <div onclick="selectSkin('suxoy')" class="cursor-pointer active:scale-95 transition-transform">
+                        <img src="suxoy.jpg" class="rounded-2xl sm:rounded-3xl border-4 border-green-300 w-full aspect-square object-cover">
+                        <p class="text-center text-[10px] sm:text-xs mt-2">Сухой</p>
                     </div>
-                    <div onclick="selectSkin('okak')" class="cursor-pointer hover:scale-105 transition-transform">
-                        <img src="okak.jpg" class="rounded-3xl border-4 border-purple-300 w-full aspect-square object-cover">
-                        <p class="text-center text-xs mt-2">Окак</p>
+                    <div onclick="selectSkin('okak')" class="cursor-pointer active:scale-95 transition-transform">
+                        <img src="okak.jpg" class="rounded-2xl sm:rounded-3xl border-4 border-purple-300 w-full aspect-square object-cover">
+                        <p class="text-center text-[10px] sm:text-xs mt-2">Окак</p>
                     </div>
                 </div>
             </div>
@@ -213,81 +225,80 @@
     </div>
 
     <!-- СЕКРЕТНЫЙ УРОВЕНЬ -->
-    <div id="screen-secret" class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center">
+    <!-- На телефоне кнопки теперь внизу, чтобы было удобно нажимать -->
+    <div id="screen-secret" class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-between py-6 sm:py-10">
         
         <!-- Хедер секретного уровня -->
-        <div class="absolute top-6 left-6 flex items-center gap-3 bg-black/40 backdrop-blur px-6 py-3 rounded-3xl">
-            <span class="text-4xl">💰</span>
-            <div id="secret-count" class="text-4xl font-bold tabular-nums">0</div>
+        <div class="flex items-center gap-3 bg-black/40 backdrop-blur px-6 py-3 rounded-full mt-4 sm:absolute sm:top-6 sm:left-6 sm:mt-0">
+            <span class="text-3xl sm:text-4xl">💰</span>
+            <div id="secret-count" class="text-3xl sm:text-4xl font-bold tabular-nums">0</div>
         </div>
 
-        <!-- Кнопки управления в секретном уровне -->
-        <div class="absolute top-6 right-6 flex gap-3">
+        <div class="flex flex-col items-center justify-center flex-1 w-full mt-4">
+            <div onpointerdown="tapCoin(event)" class="relative cursor-pointer touch-none">
+                <img id="secret-coin-img" 
+                     src="marin.jpg"
+                     class="coin w-64 h-64 sm:w-80 sm:h-80 rounded-[50%] border-[6px] sm:border-8 border-pink-300 shadow-2xl object-cover">
+            </div>
+            
+            <p id="secret-title" class="mt-6 sm:mt-10 text-2xl sm:text-3xl font-bold tracking-widest text-center px-4">ТАПАЙ<br>МАРИНА</p>
+        </div>
+
+        <!-- Кнопки управления (Внизу на телефоне, справа сверху на ПК) -->
+        <div class="flex gap-2 sm:gap-3 w-full max-w-md px-4 sm:px-0 pb-4 sm:pb-0 sm:absolute sm:top-6 sm:right-6 sm:w-auto">
             <button onclick="switchSecretMode()" 
-                    class="px-6 py-4 bg-white/20 hover:bg-white/30 rounded-3xl text-sm font-bold flex items-center gap-2">
-                🔄 ПЕРЕКЛЮЧИТЬ УРОВЕНЬ
-            </button>
-            <button onclick="exitSecretLevel()" 
-                    class="px-8 py-4 bg-white/20 hover:bg-white/30 rounded-3xl text-sm font-bold flex items-center gap-2">
-                ← НА ГЛАВНУЮ
+                    class="flex-1 sm:flex-none p-3 sm:px-6 sm:py-4 bg-white/20 active:bg-white/30 rounded-2xl text-[10px] sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center">
+                <span class="text-lg sm:text-base">🔄</span>
+                СМЕНИТЬ
             </button>
             <button onclick="returnToOriginalCoin()" 
-                    class="px-6 py-4 bg-yellow-400 hover:bg-yellow-300 text-black rounded-3xl text-sm font-bold flex items-center gap-2">
-                🔄 ОРИГИНАЛЬНАЯ МОНЕТА
+                    class="flex-1 sm:flex-none p-3 sm:px-6 sm:py-4 bg-yellow-400 active:bg-yellow-300 text-black rounded-2xl text-[10px] sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center">
+                <span class="text-lg sm:text-base">🔄</span>
+                ОРИГИНАЛ
+            </button>
+            <button onclick="exitSecretLevel()" 
+                    class="flex-1 sm:flex-none p-3 sm:px-6 sm:py-4 bg-red-500/80 active:bg-red-500 rounded-2xl text-[10px] sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center">
+                <span class="text-lg sm:text-base">✖️</span>
+                ВЫХОД
             </button>
         </div>
-
-        <div onclick="tapCoin(event)" class="relative cursor-pointer">
-            <img id="secret-coin-img" 
-                 src="marin.jpg"
-                 class="coin w-80 h-80 rounded-[50%] border-8 border-pink-300 shadow-2xl object-cover">
-        </div>
-        
-        <p id="secret-title" class="mt-10 text-3xl font-bold tracking-widest text-center">ТАПАЙ<br>МАРИНА</p>
     </div>
 
     <!-- ==================== АУДИО ФАЙЛЫ ==================== -->
-    
-    <!-- Музыка для ОРИГИНАЛЬНОЙ тапалки -->
     <audio id="audio-main" loop preload="auto">
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Музыка для уровня "МАРИНА" -->
     <audio id="audio-romantic" loop preload="auto">
         <source src="marina_song.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Музыка для уровня "ХЛЕБИК" -->
     <audio id="audio-golden" loop preload="auto">
         <source src="hleb_song.mp3" type="audio/mpeg">
     </audio>
     <!-- ====================================================== -->
 
     <script>
-        // ==================== ТВОИ ЛОКАЛЬНЫЕ ФОТОГРАФИИ ====================
         const IMAGES = {
-            original: "makdi.jpg",  // ← Главная монета (Оригинал)
-            marin:    "marin.jpg",  // ← Скин Марина
-            hleb:     "hleb.jpg",   // ← Скин Хлеб
-            aurum:    "aurum.jpg",  // ← Скин Аурум
-            suxoy:    "suxoy.jpg",  // ← Скин Сухой
-            okak:     "okak.jpg",   // ← Скин Окак
-            secret1:  "marin.jpg",  // ← Монета для уровня МАРИНА
-            secret2:  "hleb.jpg"    // ← Монета для уровня ХЛЕБИК
+            original: "makdi.jpg",
+            marin:    "marin.jpg",
+            hleb:     "hleb.jpg",
+            aurum:    "aurum.jpg",
+            suxoy:    "suxoy.jpg",
+            okak:     "okak.jpg",
+            secret1:  "marin.jpg",
+            secret2:  "hleb.jpg"
         };
-        // ===================================================================
 
         let coins = parseInt(localStorage.getItem('tapalka_coins')) || 0;
         let currentSkin = localStorage.getItem('tapalka_skin') || 'original';
         
-        // Защита, если был сохранен старый скин, которого уже нет
         if (!IMAGES[currentSkin]) {
             currentSkin = 'original';
         }
 
         let isSecret = false;
-        let secretMode = 1; // 1 = МАРИНА, 2 = ХЛЕБИК
+        let secretMode = 1; 
         let multiplier = 1;
         let autoTapInterval = null;
         let activeBoosts = [];
@@ -321,14 +332,14 @@
         function createParticles(x, y) {
             const container = document.getElementById('screen-secret');
             const isRomantic = secretMode === 1;
-            const count = isRomantic ? 18 : 14;
+            const count = isRomantic ? 12 : 10; 
             
             for (let i = 0; i < count; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
                 p.textContent = isRomantic ? '❤️' : '⭐';
-                p.style.left = (x + (Math.random()-0.5)*180) + 'px';
-                p.style.top = (y + (Math.random()-0.5)*110 - 40) + 'px';
+                p.style.left = (x + (Math.random()-0.5)*120) + 'px';
+                p.style.top = (y + (Math.random()-0.5)*100 - 40) + 'px';
                 p.style.color = isRomantic ? '#ff1493' : '#fcd34d';
                 
                 p.style.animation = isRomantic 
@@ -336,27 +347,29 @@
                     : 'floatStar 2.4s ease-out forwards';
                 
                 container.appendChild(p);
-                setTimeout(() => p.remove(), 3000);
+                setTimeout(() => p.remove(), 2500);
             }
         }
 
         function tapCoin(e) {
+            // Защита от стандартных браузерных жестов на телефоне
+            if(e.cancelable) e.preventDefault();
+
             if (!isAudioStarted && !isSecret) {
                 audioMain.volume = 0.4;
                 audioMain.play().catch(()=>{});
                 isAudioStarted = true;
             }
 
-            // === ВОТ ЗДЕСЬ ИЗМЕНЕНО НА 15 ОЧКОВ ===
             let gain = 15 * multiplier;
             coins += gain;
             save();
             updateHeader();
 
-            const x = e.clientX;
-            const y = e.clientY;
-
             if (isSecret) {
+                // onpointerdown дает координаты клика пальцем
+                const x = e.clientX;
+                const y = e.clientY;
                 createParticles(x, y);
             }
         }
@@ -374,7 +387,7 @@
             }
 
             const div = document.createElement('div');
-            div.className = `px-5 py-2 bg-white/20 rounded-2xl text-sm font-bold boost-active`;
+            div.className = `px-3 py-1 sm:px-5 sm:py-2 bg-white/20 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-bold boost-active`;
             div.textContent = boost.name + " " + (boost.duration/1000) + "с";
             document.getElementById('active-boosts').appendChild(div);
 
@@ -401,7 +414,6 @@
             save();
             updateHeader();
             applyBoost(boost);
-            alert(`✅ Куплен буст: ${boost.name}`);
         }
 
         function selectSkin(skin) {
@@ -412,8 +424,6 @@
         }
 
         function enterSecretLevel(mode) {
-            if (!confirm('Перейти в секретный уровень?')) return;
-            
             isSecret = true;
             secretMode = mode;
             
@@ -452,25 +462,21 @@
             }
 
             const secretScreen = document.getElementById('screen-secret');
-            // Меняем фон
             secretScreen.style.background = isRomantic 
                 ? 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)' 
                 : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
             
-            // Меняем заголовок
             document.getElementById('secret-title').innerHTML = isRomantic 
-                ? 'ТАПАЙ <br>МАРИНА' 
+                ? 'ТАПАЙ<br>МАРИНА' 
                 : 'ТАПАЙ И ЗАРАБАТЫВАЙ ⭐<br>ХЛЕБИК';
             
-            // Автоматически меняем картинку
             document.getElementById('secret-coin-img').src = isRomantic ? IMAGES.secret1 : IMAGES.secret2;
-            
             document.getElementById('secret-count').textContent = Math.floor(coins);
         }
 
         function returnToOriginalCoin() {
             document.getElementById('secret-coin-img').src = IMAGES[currentSkin];
-            alert('✅ Монета возвращена к твоему текущему скину!');
+            alert('✅ Монета возвращена!');
         }
 
         function exitSecretLevel() {
@@ -486,7 +492,7 @@
         }
 
         function resetScore() {
-            if (confirm('Сбросить ВЕСЬ прогресс?')) {
+            if (confirm('Сбросить весь прогресс?')) {
                 coins = 0;
                 currentSkin = 'original';
                 multiplier = 1;
